@@ -41,3 +41,10 @@ class PlaySerializer(serializers.Serializer):
         end = validated_data.get('end')
         play = Play(nameSong=song, start=start, end=end, nameChannel=chan)
         return play
+
+
+class PlaySongSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Play
+        fields = ('nameChannel', 'start', 'end')
