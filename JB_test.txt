@@ -2,4 +2,4 @@ curl -H "Content-Type: application/json" -X POST -d '{"title":"JBtit","performer
 
 
 http://127.0.0.1:8000/webapi/get_channel_plays/JBradio/2016-11-17T19:41:00/2016-11-19T19:44:16
-http://127.0.0.1:8000/webapi/get_top/radio/2016-11-21T00:00:00/40
+http://127.0.0.1:8000/webapi/get_top/radio/2016-11-14T00:00:00/40

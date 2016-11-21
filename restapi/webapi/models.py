@@ -21,8 +21,13 @@ class Play(models.Model):
     nameChannel = models.ForeignKey(Channel)
 
 
-class TopPlay(models.Model):
+class TopPlayPrevious(models.Model):
     song = models.ForeignKey(Song)
-    plays = models.IntegerField()
     previous_plays = models.IntegerField()
-    previous_rank = models.IntegerField()
+    previous_rank = models.IntegerField(blank=True, null=True)
+
+
+# class TopPlay(models.Model):
+#    song = models.ForeignKey(Song)
+#    plays = models.IntegerField(blank=True)
+#    previous_plays = models.ForeignKey(TopPlayPrevious)

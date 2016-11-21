@@ -1,8 +1,9 @@
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from django.db import connection
 
-from webapi.models import Channel, Performer, Song, Play, TopPlay
+from webapi.models import Channel, Performer, Song, Play, TopPlayPrevious
 from webapi.serializers import ChannelSerializer, PerformerSerializer
 from webapi.serializers import SongSerializer, PlaySerializer, PlaySongSerializer
 
@@ -160,49 +161,67 @@ def get_top(request, channel, start, limit):
         # - Fill the field previous_plays
         # - Fill the field previous_ranks
         # - Serialize the top limit songs.
-        TopPlay.objects.all().delete()
+        TopPlayPrevious.objects.all().delete()
         start_plusweek = datetime.datetime.strptime(start, '%Y-%m-%dT%H:%M:%S') \
             + datetime.timedelta(weeks=1)
         start_minusweek = datetime.datetime.strptime(start, '%Y-%m-%dT%H:%M:%S') \
             - datetime.timedelta(weeks=1)
         chan = Channel.objects.filter(name=channel).get()
-        # Songs played during the week
-        songsplayed = Play.objects.filter(nameChannel=chan,
-                                          start__gte=start,
-                                          start__lte=start_plusweek)
-        for playsong in songsplayed:
-            song = Song.objects.filter(id=playsong.nameSong.id).get()
-            timesplayed = Play.objects.filter(nameChannel=chan,
-                                              nameSong=song,
-                                              start__gte=start,
-                                              start__lte=start_plusweek
-                                              ).count()
-            previous_plays = Play.objects.filter(nameChannel=chan,
-                                                 nameSong=song,
-                                                 start__gte=start_minusweek,
-                                                 start__lte=start
-                                                 ).count()
-
-            TopPlay(song=song.nameSong.id, plays=timesplayed, previous_plays=previous_plays).save()
-        # Sweep TopPlay to find the previous_rank
-        prevranksongs = TopPlay.objects.order_by('-previous_plays').all()
+        # Songs played during previous week
+        # After much time looking in pages to use filters in aggregation in django
+        # I have used a raw query for less complexity
+        query = "select nameSong_id,count(nameSong_id) as quantes from webapi_play where " + \
+                "start>='" + str(start_minusweek) + "' and start<='" + start + "'" + \
+                " and nameChannel_id = " + str(chan.id) + \
+            " group by nameSong_id order by quantes desc"
+        cur = connection.cursor()
+        songsprevious = cur.execute(query).fetchall()
         ranking = 1
-        for tp in prevranksongs:
-            tp.previous_rank = ranking
-            tp.save()
+        for playsong in songsprevious:
+            song = Song.objects.filter(id=playsong[0]).get()
+
+            TopPlayPrevious(song=song,
+                            previous_plays=playsong[1],
+                            previous_rank=ranking
+                            ).save()
             ranking = ranking + 1
 
+        # Songs played during searched week
         # Prepare the data to return
+        query = "select nameSong_id,count(nameSong_id) as quantes " + \
+                "from webapi_play where start>='" + start + "' and start<='" + \
+                str(start_plusweek) + "'" + "and nameChannel_id = " + str(chan.id) + \
+                " group by nameSong_id order by quantes desc"
+        cur = connection.cursor()
+        songs = cur.execute(query).fetchall()
         return_data = []
-        ranksongs = TopPlay.objects.order_by('-plays').all()
         ranking = 1
-        for tp in ranksongs[0:int(limit)]:
-            data_seri = {'performer': tp.song.namePerformer.name,
-                         'title': tp.song.title,
-                         'plays': str(tp.plays),
-                         'previous_plays': str(tp.previous_plays),
+        for playsong in songs:
+            print("TopPlay - playsong: " + str(playsong))
+            song = Song.objects.filter(id=playsong[0]).get()
+            try:
+                tpp = TopPlayPrevious.objects.filter(song=song).get()
+                if tpp.previous_rank <= limit:
+                    prev_plays = tpp.previous_plays
+                    prev_rank = tpp.previous_rank
+                    plays = str(playsong[1])
+                else:
+                    prev_plays = 0
+                    prev_rank = None
+                    plays = 0
+            except TopPlayPrevious.DoesNotExist:
+                prev_plays = 0
+                prev_rank = None
+                plays = 0
+
+            data_seri = {'performer': song.namePerformer.name,
+                         'title': song.title,
+                         'plays': plays,
+                         'previous_plays': str(prev_plays),
                          'rank': str(ranking),
-                         'previous_rank': str(tp.previous_rank)}
+                         'previous_rank': str(prev_rank)}
             return_data.append(str(data_seri))
             ranking = ranking + 1
+            if ranking > limit:
+                break
         return Response(return_data, status=status.HTTP_200_OK)
