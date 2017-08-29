@@ -4,7 +4,7 @@
   <!-- Begin Style Definitions -->
   <Style id="area1">
     <LineStyle>
-      <color>FFFF0000</color>
+      <color>00FF0000</color>
       <width>1</width>
     </LineStyle>
     <PolyStyle>
