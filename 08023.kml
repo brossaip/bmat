@@ -17,6 +17,7 @@
     <name>Area Features</name>
     <description>Area Features</description>
     <Placemark>
+      <multigeometry>
       <description>Unknown Area Type</description>
       <styleUrl>#area1</styleUrl>
       <Polygon>
@@ -199,6 +200,7 @@
           </LinearRing>
         </outerBoundaryIs>
       </Polygon>
+       </multigeometry>
     </Placemark>
   </Folder>
 </Document>
