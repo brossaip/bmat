@@ -145,6 +145,10 @@
           </LinearRing>
         </outerBoundaryIs>
       </Polygon>
+      </Placemark>
+     <Placemark>
+      <description>Unknown Area Type</description>
+      <styleUrl>#area1</styleUrl>
       <Polygon>
         <outerBoundaryIs>
           <LinearRing>
