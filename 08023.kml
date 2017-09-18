@@ -1,11 +1,13 @@
-<?xml version="1.0" encoding="iso-8859-1"?>
-<kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2">
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://earth.google.com/kml/2.1">
 <Document>
+  <name>Prova JBD</name>
+  <description>A veure si apareix pintat</description>
   <!-- Begin Style Definitions -->
   <Style id="area1">
     <LineStyle>
       <color>00FF0000</color>
-      <width>1</width>
+      <width>4</width>
     </LineStyle>
     <PolyStyle>
       <color>000080FF</color>
@@ -13,9 +15,6 @@
       <outline>1</outline>
     </PolyStyle>
   </Style>
-  <Folder>
-    <name>Area Features</name>
-    <description>Area Features</description>
     <Placemark>
       <description>Unknown Area Type</description>
       <styleUrl>#area1</styleUrl>
@@ -145,7 +144,6 @@
           </LinearRing>
         </outerBoundaryIs>
       </Polygon>
-    </Placemark>
-  </Folder>
+    </Placemark>  
 </Document>
 </kml>
