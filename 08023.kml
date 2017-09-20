@@ -3,9 +3,6 @@
 <Document>
 	<name>Prova_GoogleEarth.kml</name>
 	
-	<Folder>
-		<name>JBD</name>
-		<open>1</open>
 		<Placemark>
 			<name>Polígono sin título</name>
 			<styleUrl>#msn_ylw-pushpin</styleUrl>
@@ -137,6 +134,6 @@
 				</outerBoundaryIs>
 			</Polygon>
 		</Placemark>
-	</Folder>
+	
 </Document>
 </kml>
